@@ -1,0 +1,75 @@
+The workshop opens when the morning light reaches the window.
+Mira puts a notebook on the table and writes a question on the first page.
+How does a machine learn to tell a story?
+It begins with a sequence of symbols and a prediction about what comes next.
+A letter follows another letter. A word follows another word.
+Each small prediction becomes a lesson, and each lesson changes the model.
+
+At the next table, Leo builds a tiny language model from simple parts.
+First he turns text into numbers. Each byte receives its own number.
+The numbers become vectors, and the vectors carry information through the network.
+Position vectors help the model distinguish the beginning from the end.
+Attention lets each position look at the positions that came before it.
+The future stays hidden, because the answer must be predicted rather than copied.
+
+Mira reads the first generated sentence aloud and laughs.
+The model has invented a word that no one has heard before.
+Leo checks the loss and runs another batch of examples.
+A gradient points toward a small improvement. The optimizer takes a small step.
+They repeat the process, watching a line of numbers become a pattern.
+Learning is a long conversation between a prediction and a correction.
+
+Outside the workshop, rain begins to tap against the glass.
+The garden smells of leaves and wet soil. A bird waits beneath a branch.
+Inside, the little model tries to describe the rain.
+It knows the shape of a sentence before it knows what a sentence means.
+It learns that a question often ends with a question mark.
+It learns that a story can begin with a person, a place, and a change.
+
+The next morning brings a clear sky and another experiment.
+Mira changes the number of attention heads and records the result.
+Leo makes the context longer so that more of the story fits in one window.
+They keep a separate piece of text to check what the model has learned.
+A lower training loss is useful, but unfamiliar examples tell a different story.
+An experiment is most useful when another person can repeat it.
+
+The workshop opens when the morning light reaches the window.
+Mira puts a notebook on the table and writes a question on the first page.
+How does a machine learn to tell a story?
+It begins with a sequence of symbols and a prediction about what comes next.
+A letter follows another letter. A word follows another word.
+Each small prediction becomes a lesson, and each lesson changes the model.
+
+At the next table, Leo builds a tiny language model from simple parts.
+First he turns text into numbers. Each byte receives its own number.
+The numbers become vectors, and the vectors carry information through the network.
+Position vectors help the model distinguish the beginning from the end.
+Attention lets each position look at the positions that came before it.
+The future stays hidden, because the answer must be predicted rather than copied.
+
+Mira reads the first generated sentence aloud and laughs.
+The model has invented a word that no one has heard before.
+Leo checks the loss and runs another batch of examples.
+A gradient points toward a small improvement. The optimizer takes a small step.
+They repeat the process, watching a line of numbers become a pattern.
+Learning is a long conversation between a prediction and a correction.
+
+Outside the workshop, rain begins to tap against the glass.
+The garden smells of leaves and wet soil. A bird waits beneath a branch.
+Inside, the little model tries to describe the rain.
+It knows the shape of a sentence before it knows what a sentence means.
+It learns that a question often ends with a question mark.
+It learns that a story can begin with a person, a place, and a change.
+
+The next morning brings a clear sky and another experiment.
+Mira changes the number of attention heads and records the result.
+Leo makes the context longer so that more of the story fits in one window.
+They keep a separate piece of text to check what the model has learned.
+A lower training loss is useful, but unfamiliar examples tell a different story.
+An experiment is most useful when another person can repeat it.
+
+At sunset they save the model, the optimizer, and the experiment settings.
+Tomorrow they can continue from the same step without starting again.
+The notebook contains the questions that worked and the questions that did not.
+There is still much to learn, but the path from text to prediction is now visible.
+One small model, one clear example, and one careful experiment can open the door.

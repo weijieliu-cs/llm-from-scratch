@@ -1,4 +1,4 @@
-# Python 缓存与构建产物
+# Python caches and build artifacts
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -6,7 +6,7 @@ __pycache__/
 build/
 dist/
 
-# 虚拟环境与本地环境变量
+# Virtual environments and local environment variables
 .venv/
 venv/
 env/
@@ -14,7 +14,7 @@ env/
 .env.*
 !.env.example
 
-# 测试、检查工具与 Notebook 缓存
+# Test, lint, type checker, and notebook caches
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -25,7 +25,7 @@ env/
 htmlcov/
 .ipynb_checkpoints/
 
-# 模型权重、训练产物与本地数据
+# Model weights, training artifacts, and local data
 *.pt
 *.pth
 *.ckpt
@@ -38,6 +38,6 @@ htmlcov/
 /data/processed/
 *.log
 
-# 操作系统临时文件
+# Operating system temporary files
 .DS_Store
 Thumbs.db

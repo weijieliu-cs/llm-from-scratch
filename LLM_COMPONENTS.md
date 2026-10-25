@@ -492,63 +492,34 @@ ZeRO 的常见阶段依次分片优化器状态、再加梯度、再加参数；
 
 ## 12. 本仓库已具备哪些组件
 
-以下根据编写文档时的 [model.py](model.py)、[dataset.py](dataset.py) 和 [train.py](train.py) 整理；后续实现变化时应同步更新本节。
+以下对应当前的 [`src/llm_from_scratch`](src/llm_from_scratch) 实现；根目录的 `model.py`、`dataset.py` 和 `train.py` 保留兼容入口。
 
 | 部分 | 当前实现 | 可补齐或扩展的内容 |
 | --- | --- | --- |
-| 编码 | `dataset.py` 使用 UTF-8 固定字节 ID，词表为 256 | 独立 encode/decode 接口、特殊 token、可选子词分词 |
-| 数据划分与采样 | 前 90% / 后 10% 划分，随机采样固定长度窗口 | 多文档划分、数据版本、变长样本和 padding |
-| 标签 | `get_batch()` 已构造错开一位的目标 | 明确接口约定，增加按需 loss mask |
-| 模型配置 | `ModelConfig` 保存词表、上下文、维度、头数、层数和 Dropout | 外部配置与配置持久化、参数合法性检查 |
-| Embedding | token 嵌入和可学习绝对位置嵌入 | 保留基线，按学习目标添加 RoPE 等变体 |
+| 编码 | `tokenizer.py` 提供 UTF-8 字节 encode/decode，词表为 256 | 特殊 token、可选子词分词 |
+| 数据划分与采样 | 先按顺序划分，再随机采样窗口；训练采样器独立，保存语料 SHA-256 | 多文档划分、去重、变长样本和 padding |
+| 标签 | `get_batch()` 已构造错开一位的目标 | 按需 loss mask |
+| 配置 | 不可变 dataclass、JSON 配置、命令行覆盖、参数校验与持久化 | 按新功能扩展配置 |
+| Embedding | token 嵌入和可学习绝对位置嵌入 | 按学习目标添加 RoPE 等变体 |
 | 注意力 | 融合 QKV 投影、MHA、显式因果掩码和输出投影 | padding mask、KV Cache、可选 GQA 和高效内核 |
-| Block | Pre-LayerNorm、残差、GELU FFN 和 Dropout | 保留基线，按需增加 RMSNorm / SwiGLU |
-| 输出 | Final LayerNorm、LM Head、输入输出权重共享 | 导出与加载完整配置，支持不同训练目标掩码 |
-| 训练 | 交叉熵、自动微分、AdamW、固定学习率 | 调度器、梯度裁剪、累积、混合精度与 Checkpoint |
-| 验证 | 随机批次估计训练和验证 loss | 固定评估集、token 加权指标及生成回归样例 |
-| 生成 | 裁取最近上下文、全量重算、按 Softmax 分布采样 | 停止 token、temperature / top-k / top-p、KV Cache |
+| Block | Pre-LayerNorm、残差、GELU FFN 和 Dropout | 按需增加 RMSNorm / SwiGLU |
+| 输出 | Final LayerNorm、LM Head、输入输出权重共享 | 支持不同训练目标掩码 |
+| 训练 | 交叉熵、AdamW 参数分组、梯度裁剪与非有限值检查 | 调度器、梯度累积、混合精度 |
+| Checkpoint | 原子保存模型、优化器、配置、步数、随机数和采样器状态，校验语料后恢复 | 随新增调度器或精度策略保存相应状态 |
+| 验证 | 固定种子窗口估计训练/验证 loss，与训练随机数流隔离，记录 JSONL 指标 | 完整验证集评估与任务指标 |
+| 生成 | 独立命令加载 Checkpoint；最近上下文、temperature、top-k 和贪心解码 | 停止 token、top-p、KV Cache |
+| 正确性验证 | 因果性、组件对齐、过拟合、权重加载、完整恢复及 CLI 测试，GitHub Actions 检查 | 随后续功能补充相应测试 |
 | 对话与后训练 | 尚未实现 | 对话模板、SFT 数据与回答区域掩码 |
 | 服务化 | 尚未实现 | 推理 API、流式响应、资源管理与监控 |
 
-当前代码已经覆盖基础语言模型的主要计算链路。建议优先补齐持久化、评估和可控生成，再根据资源与目标扩展模型结构。
+当前已完成小模型的训练、保存、恢复和独立生成闭环。示例数据和模型规模有限，不代表通用语言或对话能力。
 
-## 13. 建议的模块拆分
+## 13. 当前模块与扩展方式
 
-当前三个 Python 文件适合阅读。随着功能增加，可以逐步演化为下面的结构；这是规划示例，不表示这些文件已经存在，也不要求立刻重构。
+当前采用 `src/llm_from_scratch/` 包布局，将配置、Tokenizer、数据、模型、训练、Checkpoint 和命令行分开。
+具体目录与运行方法见 [README](README.md#代码导航)，开发约定与参考仓库见 [开发说明](docs/development.md)。
 
-```text
-configs/                 模型、训练、数据和推理配置
-llm/
-  tokenizer.py           编码、解码、特殊 token 与模板
-  data/
-    preprocess.py        清洗、去重、划分与离线编码
-    dataset.py           数据读取与样本采样
-    collator.py          padding、packing 与各类掩码
-  model/
-    config.py            模型结构配置
-    attention.py         QKV、因果注意力与缓存接口
-    position.py          位置嵌入或 RoPE
-    norm.py              LayerNorm / RMSNorm
-    feed_forward.py      GELU MLP / SwiGLU
-    transformer.py       Block、完整模型与输出层
-  training/
-    trainer.py           训练、累积、精度与日志
-    optimizer.py         参数分组、优化器与调度器
-    checkpoint.py        保存、恢复与版本元数据
-    distributed.py       按需加入的并行与通信逻辑
-  post_training/
-    sft.py               指令微调
-    preference.py        按需加入的偏好训练
-  inference/
-    generation.py        生成循环、采样与停止
-    kv_cache.py          缓存存储、写入和回收
-    engine.py            prefill、decode 与批处理
-  evaluation/            指标、任务评估与性能测量
-  serving/               API、队列与监控
-scripts/                 预处理、训练、评估、聊天和导出入口
-tests/                   关键正确性与恢复、缓存一致性检查
-artifacts/               权重、配置、Tokenizer 和实验记录
-```
+保持模型计算集中在 `model.py`，便于从上到下阅读。后续实现 KV Cache、不同位置编码或 SFT 时，再根据实际复杂度提取子模块；不预建没有实现的服务、分布式或后训练目录。
 
 ## 14. 推荐实现顺序与验收标准
 
@@ -556,17 +527,17 @@ artifacts/               权重、配置、Tokenizer 和实验记录
 
 ### 阶段一：巩固基础模型闭环
 
-- [ ] 固定并记录编码、样本移位、结构和训练配置。
-- [ ] 验证模型可以在极小数据上过拟合，并且因果注意力不会泄露未来信息。
-- [ ] 保存并重新加载权重和配套配置，确认输出一致。
-- [ ] 增加可控采样、最大生成长度，以及设计了结束 token 时的停止逻辑。
+- [x] 固定并记录编码、样本移位、结构和训练配置。
+- [x] 验证模型可以在极小数据上过拟合，并且因果注意力不会泄露未来信息。
+- [x] 保存并重新加载权重和配套配置，确认输出一致。
+- [x] 增加 temperature、top-k、贪心解码和最大生成长度；当前字节词表未定义结束 token。
 
 **验收：** 从语料训练模型，保存后重新加载，仅依靠交付文件完成一次可解释的文本生成。
 
 ### 阶段二：完善训练工程与评估
 
-- [ ] 加入完整 Checkpoint、恢复逻辑和数据版本记录。
-- [ ] 加入固定验证流程、有效 token 加权统计、日志和异常检查。
+- [x] 加入完整 Checkpoint、恢复逻辑和语料校验值记录。
+- [x] 加入固定窗口验证、JSONL 指标与非有限值检查；等长无 padding 批次的均值对应有效 token 均值。
 - [ ] 按训练需要增加学习率调度、梯度裁剪、累积和混合精度。
 - [ ] 将数据处理扩展到多个独立文档，检查划分与重复数据。
 

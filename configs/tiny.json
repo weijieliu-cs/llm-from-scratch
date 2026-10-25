@@ -1,0 +1,25 @@
+{
+  "model": {
+    "vocab_size": 256,
+    "context_length": 64,
+    "embedding_dim": 64,
+    "num_heads": 4,
+    "num_layers": 2,
+    "dropout": 0.1
+  },
+  "training": {
+    "data_path": null,
+    "output_dir": "outputs/tiny",
+    "train_fraction": 0.9,
+    "batch_size": 8,
+    "max_steps": 200,
+    "learning_rate": 0.001,
+    "weight_decay": 0.01,
+    "grad_clip": 1.0,
+    "eval_interval": 50,
+    "eval_batches": 10,
+    "seed": 1337,
+    "device": "auto",
+    "num_threads": 1
+  }
+}
